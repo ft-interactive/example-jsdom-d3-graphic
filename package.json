@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "d3": "^4.9.1",
+    "ft-graphics-deploy": "^2.1.0",
     "g-chartframe": "^0.4.11",
     "jsdom": "^11.0.0"
   }
