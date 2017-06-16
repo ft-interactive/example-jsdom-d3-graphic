@@ -3,6 +3,11 @@ const { JSDOM } = jsdom;
 const fs = require('fs');
 const d3 = require('d3');
 const chartFrame = require('g-chartframe');
+
+const toTitleCase = (str) => str.split(' ')
+   .map(word => word[0].toUpperCase() + word.substr(1).toLowerCase())
+   .join(' ');
+
 const data = require('./westlife.json').map(d=>{
   d.highestPosition = d.positions.reduce((acc,p)=>{
     return Math.min(acc, p.position);
@@ -17,7 +22,7 @@ virtualConsole.sendTo(console);
 const dom = new JSDOM(fs.readFileSync('scaffold.html'), { virtualConsole });
 
 //get the thing we'll be draing in
-const chartContainer = d3.select(dom.window.document.querySelector('body div.chart'))
+const chartContainer = d3.select(dom.window.document.querySelector('body div.chart'));
 
 //go crazy with d3
 const width = 1400, height = 700;
@@ -94,18 +99,17 @@ plot.selectAll('g.label')
     .attr('font-size','12')
     .text(d=>toTitleCase(d.title))
 
-function toTitleCase(str){
-    return str.replace(/\w\S*/g, function(txt){
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
-}
+
 
 //get the resulting markup
 //append the doc type and so on
 const doctype = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">`;
-
 const markup = doctype + chartContainer.html().trim();
 
 //save the resulting SVG
+const dir = __dirname + '/dist';
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
 fs.writeFileSync('dist/westlife.svg', markup);

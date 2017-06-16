@@ -1,0 +1,34 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/project
+    docker:
+      - image: node:7
+    steps:
+      - checkout
+      - restore_cache:
+          key: node_modules-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install dependencies
+          command: yarn --pure-lockfile
+      - run:
+          name: Rebuild problematic node modules
+          command: npm rebuild
+      - save_cache:
+          key: node_modules-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules/
+      - run:
+          name: Build
+          command: yarn run build
+      - store_artifacts:
+          path: dist/
+      - deploy:
+          name: Deploy
+          command: |
+            if [ "$PREVIEW" == "true" ]
+            then
+              yarn run deploy -- --confirm --preview
+            else
+              yarn run deploy -- --confirm
+            fi
